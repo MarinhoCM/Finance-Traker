@@ -1,0 +1,106 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./sqlite.db"
+}
+
+model user {
+  id           Int        @id @unique @default(autoincrement())
+  name         String
+  passwd       String
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+  last_session DateTime   @updatedAt
+  expenses     expenses[]
+  earnings     earnings[]
+}
+
+model status {
+  id          Int        @id @unique @default(autoincrement())
+  description String
+  active      Boolean    @default(true)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  expenses    expenses[]
+}
+
+model tag {
+  id          Int        @id @unique @default(autoincrement())
+  description String
+  active      Boolean    @default(true)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  expenses    expenses[]
+  earnings    earnings[]
+}
+
+model expenses {
+  id                Int                  @id @unique @default(autoincrement())
+  description       String?
+  value             Float
+  status            status               @relation(fields: [statusId], references: [id])
+  owner             user                 @relation(fields: [userId], references: [id])
+  tag               tag                  @relation(fields: [tagId], references: [id])
+  deadline          DateTime
+  created_at        DateTime             @default(now())
+  updated_at        DateTime             @updatedAt
+  statusId          Int
+  userId            Int
+  tagId             Int
+  recurringExpenses recurring_expenses[]
+}
+
+model earnings {
+  id                Int                  @id @unique @default(autoincrement())
+  description       String?
+  value             Float
+  tag               tag                  @relation(fields: [tagId], references: [id])
+  owner             user                 @relation(fields: [userId], references: [id])
+  created_at        DateTime             @default(now())
+  updated_at        DateTime             @updatedAt
+  tagId             Int
+  userId            Int
+  recurringEarnings recurring_earnings[]
+}
+
+enum Recurrence {
+  ONCE // happens only once
+  DAILY // every day
+  WEEKDAYS // every Monday to Friday
+  WEEKLY // every week (same day of week)
+  BI_WEEKLY // every 2 weeks
+  MONTHLY // every month (same day of month)
+  QUARTERLY // every 3 months
+  SEMI_ANNUALLY // every 6 months
+  ANNUALLY // every year
+  EVERY_X_DAYS // custom: every N days
+  EVERY_X_WEEKS // custom: every N weeks
+  EVERY_X_MONTHS // custom: every N months
+  EVERY_X_YEARS // custom: every N years
+}
+
+model recurring_earnings {
+  id         Int        @id @unique @default(autoincrement())
+  earning    earnings   @relation(fields: [earningsId], references: [id])
+  recurring  Recurrence @default(DAILY)
+  range_days Int
+  active     Boolean    @default(true)
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  earningsId Int
+}
+
+model recurring_expenses {
+  id         Int        @id @unique @default(autoincrement())
+  expense    expenses   @relation(fields: [expensesId], references: [id])
+  recurring  Recurrence @default(DAILY)
+  range_days Int
+  active     Boolean    @default(true)
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  expensesId Int
+}
