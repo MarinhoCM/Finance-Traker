@@ -21,10 +21,4 @@ export class AuthController {
         const { pass, user } = params;
         return await this.auth.login(user, pass)
     }
-
-    @UseGuards(AuthGuard)
-    @Get('profile')
-    getProfile(@Request() req) {
-        return req.user;
-    }
 }

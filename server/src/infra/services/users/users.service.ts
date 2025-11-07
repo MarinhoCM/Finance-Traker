@@ -33,7 +33,7 @@ export class UsersService {
         return responseMapper(Array.from(result), page, limit)
     }
 
-    async getUserByName(name: string){
+    async getUserByName(name: string) {
         return await this.repo.getByName(name)
     }
 
