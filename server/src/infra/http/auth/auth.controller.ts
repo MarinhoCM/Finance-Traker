@@ -21,11 +21,6 @@ export class AuthController {
         const { pass, user } = params;
         return await this.auth.login(user, pass)
     }
-    
-    @Post('refresh')
-    async refresh(@Body() params: UserLoginDto){
-        const { pass, user } = params;
-    }
 
     @UseGuards(AuthGuard)
     @Get('profile')
