@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,6 +13,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -99,6 +99,7 @@ export const columns: ColumnDef<IFinances>[] = [
     accessorKey: "Title",
     header: "Titulo",
     cell: ({ row }) => <div className="capitalize">{row.original.slug}</div>,
+    enableGlobalFilter: true,
   },
   {
     accessorKey: "status",
@@ -106,6 +107,7 @@ export const columns: ColumnDef<IFinances>[] = [
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("status")}</div>
     ),
+    enableGlobalFilter: true,
   },
   {
     accessorKey: "tag",
@@ -121,6 +123,7 @@ export const columns: ColumnDef<IFinances>[] = [
       );
     },
     cell: ({ row }) => <div className="uppercase">{row.getValue("tag")}</div>,
+    enableGlobalFilter: true,
   },
   {
     accessorKey: "amount",
@@ -135,6 +138,7 @@ export const columns: ColumnDef<IFinances>[] = [
 
       return <div className="text-right font-medium">{formatted}</div>;
     },
+    enableGlobalFilter: true,
   },
   {
     id: "actions",
@@ -176,7 +180,7 @@ export function FinancesListSection() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [globalFilter, setGlobalFilter] = React.useState<any>("");
 
   const table = useReactTable({
     data,
@@ -189,11 +193,6 @@ export function FinancesListSection() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    globalFilterFn: (row, columnId, filterValue) => {
-      return Object.values(row.original).some((value) =>
-        String(value).toLowerCase().includes(String(filterValue).toLowerCase())
-      );
-    },
     state: {
       sorting,
       columnFilters,
@@ -210,7 +209,7 @@ export function FinancesListSection() {
         <Input
           placeholder="Pesquisar..."
           value={globalFilter ?? ""}
-          onChange={(event) => table.setGlobalFilter(event.target.value)}
+          onChange={(event) => setGlobalFilter(String(event.target.value))}
           className="max-w-lg"
         />
         <DropdownMenu>
@@ -237,9 +236,7 @@ export function FinancesListSection() {
                     checked={column.getIsVisible()}
                     disabled={isLastVisible}
                     onCheckedChange={(value) => {
-                      console.log(value)
                       if (!isLastVisible) {
-                        console.log("aquii")
                         column.toggleVisibility(!!value);
                       }
                     }}
